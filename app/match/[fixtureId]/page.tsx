@@ -9,13 +9,13 @@ import { FormGuide } from '@/components/match/FormGuide';
 import { HeadToHeadTable } from '@/components/match/HeadToHeadTable';
 
 async function getFixture(id: string) {
-const res = await fetch(/api/fixtures/${id}, { next: { revalidate: 900 } });
+const res = await fetch('/api/fixtures/' + id, { next: { revalidate: 900 } });
 if (!res.ok) return null;
 return res.json();
 }
 
 async function getPrediction(id: string) {
-const res = await fetch(/api/predictions/${id}, { cache: 'no-store' });
+const res = await fetch('/api/predictions/' + id, { cache: 'no-store' });
 if (!res.ok) return null;
 return res.json();
 }
