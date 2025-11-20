@@ -3,7 +3,12 @@ import { predictionEngine, TeamStats, LeagueStats } from '@/lib/predictions/engi
 import { footballClient } from '@/lib/api/football-client';
 
 async function mapTeamStats(apiStats: any): Promise<TeamStats> {
-  const lastFive = (apiStats?.form?.split('') || []).slice(-5).map((r: string) => ({ result: r as 'W'|'L'|'D', goalsScored: 0, goalsConceded: 0, opponent: '' }));
+  const lastFive = (apiStats?.form?.split('') || []).slice(-5).map((r: string) => ({
+    result: r as 'W' | 'L' | 'D',
+    goalsScored: 0,
+    goalsConceded: 0,
+    opponent: '',
+  }));
   return {
     matchesPlayed: apiStats?.fixtures?.played?.total || 0,
     wins: apiStats?.fixtures?.wins?.total || 0,
@@ -30,21 +35,24 @@ async function mapTeamStats(apiStats: any): Promise<TeamStats> {
   };
 }
 
-export async function GET(_: NextRequest, { params }: { params: { fixtureId: string } }) {
+export async function GET(req: NextRequest, ctx: { params: Promise<{ fixtureId: string }> }) {
   try {
-    const fixtureId = Number(params.fixtureId);
-    const fixture = await footballClient.getFixtureDetails(fixtureId);
+    const { fixtureId } = await ctx.params;
+    const id = Number(fixtureId);
+    const fixture = await footballClient.getFixtureDetails(id);
     const season = fixture?.league?.season || new Date().getUTCFullYear();
     const leagueId = fixture?.league?.id;
     const homeTeamId = fixture?.teams?.home?.id;
     const awayTeamId = fixture?.teams?.away?.id;
 
-    if (!leagueId || !homeTeamId || !awayTeamId) return NextResponse.json({ error: 'Fixture not found' }, { status: 404 });
+    if (!leagueId || !homeTeamId || !awayTeamId) {
+      return NextResponse.json({ error: 'Fixture not found' }, { status: 404 });
+    }
 
     const result = await predictionEngine.generatePrediction(
       homeTeamId,
       awayTeamId,
-      fixtureId,
+      id,
       leagueId,
       {
         getTeamStats: async (teamId: number, lId: number) => {
@@ -56,7 +64,6 @@ export async function GET(_: NextRequest, { params }: { params: { fixtureId: str
           return h2h;
         },
         getLeagueStats: async (lId: number): Promise<LeagueStats> => {
-          // Approximate average goals from last fixtures in league
           const today = new Date().toISOString().slice(0, 10);
           const fixtures = await footballClient.getFixtures({ league: lId, date: today, season });
           const goals = fixtures?.map((f: any) => (f.goals?.home ?? 0) + (f.goals?.away ?? 0)) || [];
