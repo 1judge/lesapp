@@ -13,3 +13,4 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ leagueId: s
     console.error(e);
     return NextResponse.json({ error: 'Failed to fetch standings' }, { status: 500 });
   }
+}
