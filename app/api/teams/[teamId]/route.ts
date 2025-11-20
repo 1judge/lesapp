@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { footballClient } from '@/lib/api/football-client';
 
-export async function GET(_: NextRequest, { params }: { params: { teamId: string } }) {
+export async function GET(req: NextRequest, ctx: { params: Promise<{ teamId: string }> }) {
   try {
-    const id = Number(params.teamId);
-    // API-Football teams endpoint search by id
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ''}/api/teams/search?query=${id}`);
+    const { teamId } = await ctx.params;
+    const id = Number(teamId);
+    const base = process.env.NEXT_PUBLIC_APP_URL || '';
+    const res = await fetch(`${base}/api/teams/search?query=${id}`);
     const data = await res.json();
     const team = Array.isArray(data) ? data.find((t: any) => t.team?.id === id) : null;
     return NextResponse.json(team ?? null);
