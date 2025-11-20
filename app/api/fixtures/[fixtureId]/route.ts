@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { footballClient } from '@/lib/api/football-client';
 
-export async function GET(_: NextRequest, { params }: { params: { fixtureId: string } }) {
+export async function GET(req: NextRequest, ctx: { params: Promise<{ fixtureId: string }> }) {
   try {
-    const id = Number(params.fixtureId);
+    const { fixtureId } = await ctx.params;
+    const id = Number(fixtureId);
     const fixture = await footballClient.getFixtureDetails(id);
     return NextResponse.json(fixture ?? null);
   } catch (e: any) {
