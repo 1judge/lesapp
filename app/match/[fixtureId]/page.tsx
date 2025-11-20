@@ -128,7 +128,6 @@ return (
         </div>
       </div>
 
-      {/* Server components that fetch and render stats/form/H2H */}
       <StatsComparison
         homeId={fixture.teams.home.id}
         awayId={fixture.teams.away.id}
