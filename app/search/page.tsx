@@ -12,7 +12,7 @@ return (
 );
 }
 
-Create app/search/SearchClient.tsx with the client logic Paste your previous search code here (it uses useSearchParams and React Query).
+Create app/search/SearchClient.tsx with this EXACT code This holds the useSearchParams logic and runs on the client.
 'use client';
 
 import { useSearchParams } from 'next/navigation';
