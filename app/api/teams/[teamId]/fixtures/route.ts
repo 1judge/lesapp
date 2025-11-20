@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { footballClient } from '@/lib/api/football-client';
 
-export async function GET(req: NextRequest, { params }: { params: { teamId: string } }) {
+export async function GET(req: NextRequest, ctx: { params: Promise<{ teamId: string }> }) {
   try {
-    const team = Number(params.teamId);
+    const { teamId } = await ctx.params;
+    const team = Number(teamId);
     const { searchParams } = new URL(req.url);
     const last = Number(searchParams.get('last') || 10);
     const season = Number(searchParams.get('season') || new Date().getUTCFullYear());
